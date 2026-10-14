@@ -1,5 +1,8 @@
 /* Vee Skincare N’ Spa — single source of truth for business info and services.
-   Transcribed directly from Vee's own price-list cards (Sept 2026). Category
+   Transcribed directly from Vee's own price-list cards (Sept 2026; updated
+   Oct 2026 with Vee's revised price list — new Co2/Chemical Peel facials,
+   Teeth Scaling, Teeth Whitening+Scaling, Manicure price change, a new
+   consultation-based group, and Vagina Tightening and Rejuvenating). Category
    grouping follows the price-list headers exactly. A few items carry no
    fixed price on the price list itself ("Price based on consultation") —
    those show "Price on consultation" in the UI instead of a number.
@@ -37,6 +40,8 @@ window.VEE = (function () {
     s('Korean / BB Glow Facials', 'facials-skin', 40000),
     s('Vampire Facials', 'facials-skin', 50000),
     s('Mesotherapy Facials', 'facials-skin', 60000),
+    s('Co2 Facials', 'facials-skin', 60000),
+    s('Chemical Peel Facials', 'facials-skin', 50000),
     s('Vajicial', 'facials-skin', 12000),
     s('Butticial', 'facials-skin', 10000),
     // Waxing
@@ -90,6 +95,7 @@ window.VEE = (function () {
     s('Arm Reduction (Fat Dissolving Injection)', 'body-sculpting', 140000),
     s('Face Reduction (Fat Dissolving Injection)', 'body-sculpting', 70000),
     s('HI-FU Vagina Tightening', 'body-sculpting', 40000),
+    s('Vagina Tightening and Rejuvenating', 'body-sculpting', 70000),
     // Botox, Fillers & Threads
     s('Yam Leg / Calves Reduction (Botox)', 'botox-fillers-threads', 160000),
     s('Forehead Wrinkles Treatment (Botox)', 'botox-fillers-threads', 200000, { featured: true }),
@@ -135,13 +141,19 @@ window.VEE = (function () {
     s('Genital Wart Removal', 'consultation', null),
     s('Skin Tag Removal', 'consultation', null),
     s('Tattoo Removal', 'consultation', null),
+    s('Co2 Laser Treatment', 'consultation', null),
+    s('Keloid Treatment', 'consultation', null),
+    s('Scar Removal', 'consultation', null),
+    s('Stretch Marks Treatment', 'consultation', null),
     // Spa & Wellness
     s('Body Polish', 'spa-other', 30000, { featured: true }),
     s('Teeth Whitening', 'spa-other', 30000, { featured: true }),
+    s('Teeth Scaling', 'spa-other', 15000),
+    s('Teeth Whitening and Scaling', 'spa-other', 40000),
     s('Lip Blush', 'spa-other', 20000),
     s('Massage', 'spa-other', 30000, { featured: true }),
     s('Pedicure', 'spa-other', 10000),
-    s('Manicure', 'spa-other', 3000),
+    s('Manicure', 'spa-other', 5000),
     s('Hand Knuckles Wash', 'spa-other', 15000),
     s('Leg Knuckles Wash', 'spa-other', 15000),
     s('Foot Detox', 'spa-other', 10000),
