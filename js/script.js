@@ -79,6 +79,54 @@
     window.addEventListener('scroll', onScroll, { passive: true });
   }
 
+  /* Service detail modal — built once, reused by both the homepage
+     treatment list and the full services catalogue. Clicking a service
+     (anywhere except its own "Book" link) opens a short, accurate
+     description plus the price and a link straight into the booking form. */
+  var modal = null;
+  function ensureModal() {
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.className = 'svc-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML =
+      '<div class="svc-modal__panel">' +
+      '<button class="svc-modal__close" type="button" aria-label="Close">✕</button>' +
+      '<p class="eyebrow svc-modal__eyebrow"></p>' +
+      '<h3 class="svc-modal__title"></h3>' +
+      '<p class="svc-modal__desc"></p>' +
+      '<div class="svc-modal__meta"><p class="svc-modal__price"></p>' +
+      '<a class="button svc-modal__book">Book this treatment</a></div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    var close = function () {
+      modal.classList.remove('is-open');
+      document.body.classList.remove('modal-open');
+    };
+    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+    $('.svc-modal__close', modal).addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+    modal._close = close;
+    return modal;
+  }
+  function openServiceModal(svc) {
+    var m = ensureModal();
+    $('.svc-modal__eyebrow', m).textContent = catLabel(svc.category);
+    $('.svc-modal__title', m).textContent = svc.name;
+    $('.svc-modal__desc', m).textContent = svc.desc || '';
+    var priceEl = $('.svc-modal__price', m);
+    priceEl.textContent = priceLabel(svc);
+    priceEl.classList.toggle('service-card__price--ask', !svc.price);
+    $('.svc-modal__book', m).href = 'booking.html?service=' + svc.id;
+    m.classList.add('is-open');
+    document.body.classList.add('modal-open');
+    $('.svc-modal__close', m).focus({ preventScroll: true });
+  }
+  function byServiceId(id) { return VEE.services.filter(function (x) { return x.id === id; })[0]; }
+
   /* Treatment menu rows (home) — shows the curated featured set */
   $$('[data-treatment-list]').forEach(function (box) {
     var limit = parseInt(box.dataset.limit, 10) || VEE.services.length;
@@ -86,10 +134,24 @@
     if (!rows.length) rows = VEE.services;
     rows = rows.slice(0, limit);
     box.innerHTML = rows.map(function (x, i) {
-      return '<a class="treatment-row reveal" href="booking.html?service=' + x.id + '"><span class="treatment-row__number">' + String(i + 1).padStart(2, '0') +
+      return '<div class="treatment-row reveal" data-id="' + x.id + '" tabindex="0" role="button"><span class="treatment-row__number">' + String(i + 1).padStart(2, '0') +
         '</span><span class="treatment-row__name">' + x.name + '<small>' + catLabel(x.category) + '</small></span><span class="treatment-row__price' + (x.price ? '' : ' treatment-row__price--ask') + '">' +
-        priceLabel(x) + '</span><span class="treatment-row__arrow" aria-hidden="true">↗</span></a>';
+        priceLabel(x) + '</span><span class="treatment-row__arrow" aria-hidden="true">↗</span></div>';
     }).join('');
+    box.addEventListener('click', function (e) {
+      var row = e.target.closest('.treatment-row');
+      if (!row) return;
+      var svc = byServiceId(row.dataset.id);
+      if (svc) openServiceModal(svc);
+    });
+    box.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var row = e.target.closest('.treatment-row');
+      if (!row) return;
+      e.preventDefault();
+      var svc = byServiceId(row.dataset.id);
+      if (svc) openServiceModal(svc);
+    });
   });
 
   /* Service catalogue: filters, search, cards */
@@ -110,6 +172,8 @@
       rows.forEach(function (x) {
         var card = document.createElement('article');
         card.className = 'service-card';
+        card.tabIndex = 0;
+        card.dataset.id = x.id;
         card.innerHTML = '<p class="eyebrow"></p><h3></h3><div class="service-card__meta"><p class="service-card__price"></p><a class="service-card__book">Book <span aria-hidden="true">↗</span></a></div>';
         $('.eyebrow', card).textContent = catLabel(x.category);
         $('h3', card).textContent = x.name;
@@ -133,6 +197,22 @@
         f.setAttribute('aria-pressed', String(on));
       });
     }
+    list.addEventListener('click', function (e) {
+      if (e.target.closest('.service-card__book')) return; // let the Book link navigate normally
+      var card = e.target.closest('.service-card');
+      if (!card) return;
+      var svc = byServiceId(card.dataset.id);
+      if (svc) openServiceModal(svc);
+    });
+    list.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.target.closest('.service-card__book')) return;
+      var card = e.target.closest('.service-card');
+      if (!card) return;
+      e.preventDefault();
+      var svc = byServiceId(card.dataset.id);
+      if (svc) openServiceModal(svc);
+    });
     filters.forEach(function (f) { f.addEventListener('click', function () { state.cat = f.dataset.filter; render(); }); });
     if (search) search.addEventListener('input', function () { state.q = search.value; render(); });
     render();
